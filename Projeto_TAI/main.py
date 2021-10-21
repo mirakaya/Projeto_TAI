@@ -4,7 +4,7 @@
 # Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 from builtins import print
 
-defaultPath = "C:/Users/maria/PycharmProjects/Projeto_TAI/example.txt"
+defaultPath = "example.txt"
 
 def readFile(path):
     #reads a .txt file
@@ -25,8 +25,23 @@ def createAlphabet(fileContent):
    print(alphabet)
    print(len(alphabet))
 
+   checkStartPoint("abc[", alphabet)
 
-    
+
+def checkStartPoint(begin, alphabet): #change to correct names, maybe alphabet is not an arg
+
+    k=4 #change this, we should probably be able to check k from the table
+
+    if len(begin) != k:
+        print("Error - the start point does not have the same length as k")
+
+    for i in begin:
+
+        if i in alphabet:
+            print("yes -  " + i)
+
+        else:
+            print("Error - at least one of the characters is not on the alphabet of the text - " + i )
 
 
 
