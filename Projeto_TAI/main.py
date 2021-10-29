@@ -1,9 +1,6 @@
-# This is a sample Python script.
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+import time
+from random import random
 from builtins import print
-from cgi import print_form
 
 defaultPath = "example.txt"
 
@@ -12,10 +9,8 @@ def readFile(path):
     file = open(path, "r")
     fileContent = file.read()
 
-    k = 2
-
     createAlphabet(fileContent)
-    write_dictionary(fileContent, k)
+    write_dictionary(fileContent, 3)
 
 
 def createAlphabet(fileContent):
@@ -51,40 +46,38 @@ def checkStartPoint(begin, alphabet): #change to correct names, maybe alphabet i
 
 dictionary = {}
 
-def write_dictionary(texto, k):
+def write_dictionary(text, k):
 
-    count = 0
+    count = 0 #used to iterate the text and tell which characters belong to the k interval
+    listCharacters = list(text)
 
-    listCharacters = list(texto) #useful for knowing the characters in k
+    for i in text:
 
-    for i in texto:
+        if count <= len(text)-k:
 
-        if count <= len(texto)-k:
-
-            nextPosition = count + k - 1 #letter after k
+            nextPosition = count + k - 1 #position after the k characters
 
             temp = listCharacters[count - 1:nextPosition]  # characters of k
 
             separator = ''
-            auxKey = separator.join(temp) #turns list into a string, value of k
+            auxKey = separator.join(temp) #turns list into a string, k interval
 
-            if len(auxKey) == k:
+            if len(auxKey) == k: #makes sure the dictionary only has keys of k length
 
+                nextCharacter = listCharacters[nextPosition]#character after k
 
-                nextCharacter = listCharacters[nextPosition]# character after k
-
-                if auxKey in dictionary: # if it is a known term, adds one to the times the string has occurred in the text
+                if auxKey in dictionary: #known key, adds one to the frequency of the string
 
                     newList = []
 
-                    for p in dictionary[auxKey]:
+                    for p in dictionary[auxKey]: #creates a list with all of the characters after the key
 
                         newList += p[0]
 
 
                     for j in dictionary[auxKey]:
 
-                        if nextCharacter in newList: #only works if the repeated value is on the [0] position
+                        if nextCharacter in newList: #if the character is known
 
                             positionCharacter = 0
 
@@ -95,36 +88,56 @@ def write_dictionary(texto, k):
                                 else:
                                     positionCharacter += 1
 
-
-                            print("exists")
-
-
                             freqNextCharacter = dictionary[auxKey][positionCharacter][1]
-
-
                             newValue = [nextCharacter, freqNextCharacter + 1]
-                            dictionary[auxKey][positionCharacter] = newValue
+                            dictionary[auxKey][positionCharacter] = newValue #finds out the frequency of the character, adds 1 and substitute on the right position
+
                             break
 
-                        else: #i think it works
-                            print("nope")
+                        else: #first time the character has appeared after the key
                             dictionary[auxKey] += [[nextCharacter, 1]]
                             break
 
 
-                else: # if it is a new term, adds to dictionary
+                else: #new key
 
                     dictionary[auxKey] = [[nextCharacter, 1]]
 
 
-            print(dictionary)
+            #print(dictionary)
 
             count += 1
+
+    printDictionary(dictionary)
+
+
+def printDictionary(dictionary):
+
+    print(dictionary)
+
+
+def suitc() -> str: #example for the generator
+    random_variable_instance = random()
+    if 0 < random_variable_instance and 0.25 >= random_variable_instance:
+        return "Diamonds"
+    elif 0.25 < random_variable_instance and 0.5 >= random_variable_instance:
+        return "Clubs"
+    elif 0.5 < random_variable_instance and 0.75 >= random_variable_instance:
+        return "Hearts"
+    elif 0.75 < random_variable_instance and 1 >= random_variable_instance:
+        return "Spades"
+
 
 
 
 
 #main
 if __name__ == '__main__':
-    #readFile(defaultPath)
-    write_dictionary("aaabaaacaaabaaacaaazaaazaaazaaaxaaav", 3) # b2, c2, z3, x1, v1
+
+    begin = time.perf_counter()
+    readFile(defaultPath)
+    #write_dictionary("aaabaaacaaabaaacaaazaaazaaazaaaxaaavacab", 3) # b2, c2, z3, x1, v1
+
+    end = time.perf_counter()
+
+    print("The time was -- " + str (end - begin))
