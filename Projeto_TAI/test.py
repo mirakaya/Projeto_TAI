@@ -1,12 +1,3 @@
-# def obterCardi(text_file):
-#     with open(text_file) as f:
-#         while True:
-#             c = f.read(1)
-#             if not c:
-#                 return(chars)
-#             if c not in chars and c.isascii():
-#                 chars.append(c)
-            
 def avancarUmaCasa(text, alpha, k):
     sequencia = ""
     flag = False
