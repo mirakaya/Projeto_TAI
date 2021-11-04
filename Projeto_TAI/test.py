@@ -1,39 +1,68 @@
 from random import random
 
+def calculatingFCM(text, alpha, k):
 
-
-def avancarUmaCasa(text, alpha, k):
     sequencia = ""
     flag = False
     n_appearances = {}
-    entropy = {}
+    P = {}
+    Hc = {}
+    alphabet = []
+    valorH = 0
+    contagem = 0
+
     with open(text) as f:
         while True:
             c = f.read(1)
             if not c:
-                #print(list(n_appearances.keys()))
+
                 for i in range(0, len(list(n_appearances.keys()))):
                     sequencia = list(n_appearances.keys())[i]
-                    entropy[sequencia] = {}
+                    P[sequencia] = {}
+                    Hc_value=0
+
                     for j in range(0, len(list(n_appearances[sequencia].keys()))):
-                        entropy[sequencia][list(n_appearances[sequencia].keys())[j]] = ((list(n_appearances[sequencia].values())[j] + alpha)/(sum(list(n_appearances[sequencia].values()))+ alpha * len(list(n_appearances[sequencia].keys()))))
-                #print(n_appearances)
-                #print(entropy)
+                        #Calculating the probability
+                        P[sequencia][list(n_appearances[sequencia].keys())[j]] = ((list(n_appearances[sequencia].values())[j] + alpha)/(sum(list(n_appearances[sequencia].values()))+ alpha * len(alphabet)))
+                        
+                        #Calculating Entropy of a sub-model(sequence)
+                        Hc_value -= (list(P[sequencia].values()))[j] * math.log2((list(P[sequencia].values()))[j])
+
+                    #dictionary of Hc values for each sequence   
+                    Hc[sequencia] = Hc_value
+
+                #Calculating the overall Entropy of the model
+                for i in range(0, len(list(P.keys()))):
+                    sequencia = list(n_appearances.keys())[i]
+                    valorH += (Hc[sequencia] * (sum(list(n_appearances[sequencia].values()))+alpha * len(alphabet)))/contagem
+
+                print("Value of entropy ", round(valorH, 2), " bits/symbol")
                 break
+
+
+            contagem += 1
             if c.isascii():
+                
+                if c not in alphabet:
+                    alphabet +=c
+                
                 if len(sequencia) < k and flag == False:
                     sequencia += c
+                
                 else:
                     flag = True
+                
                     if sequencia not in n_appearances:
                         n_appearances[sequencia] = {}
+                
                     if c not in n_appearances[sequencia]:
                             n_appearances[sequencia][c] = 1
-                    else:
+                
+                    else:        
                         n_appearances[sequencia][c] = n_appearances[sequencia][c] + 1
                     sequencia = sequencia[1:]
                     sequencia = sequencia + c
-    return entropy
+    return P
 
 
 def generator(entropy, prior):
@@ -57,10 +86,8 @@ def generator(entropy, prior):
     index = 0
 
     '''for i in prior: #fills list with prior
-
         generated_text[index] = prior[index]
         index += 1
-
     print(generated_text)'''
 
 
@@ -91,7 +118,6 @@ def generator(entropy, prior):
             next_chars_list = list(entropy[i].keys())'''
 
             '''  # receives the position
-
             next_character = next_chars_list[position]'''
 
             #return next_chars_list[position]
@@ -144,26 +170,26 @@ def sorting (values): #returns the position chosen
 
 
 def main():
-    while(True):
-        text = input("Enter name of text file: ")
-        alpha = input("Enter name of alpha: ")
-        k = input("Enter k value: ")
-        if os.path.isfile(text) and alpha.isnumeric() and k.isnumeric:
-            break
-        if os.path.isfile(text) == False:
-            print("File not found! Please insert a valid file")
-        elif alpha.isnumeric() == False:
-            print("Please insert a valid number")
-        elif k.isnumeric() == False:
-            print("Please insert a valid k")
+    # while(True):
+    #     text = input("Enter name of text file: ")
+    #     alpha = input("Enter name of alpha: ")
+    #     k = input("Enter k value: ")
+    #     if os.path.isfile(text) and alpha.isnumeric() and k.isnumeric:
+    #         break
+    #     if os.path.isfile(text) == False:
+    #         print("File not found! Please insert a valid file")
+    #     elif alpha.isnumeric() == False:
+    #         print("Please insert a valid number")
+    #     elif k.isnumeric() == False:
+    #         print("Please insert a valid k")
 
-    print(text)
-    print(alpha)
+    # print(text)
+    # print(alpha)
 
-    print("encontrado")
-    a = avancarUmaCasa(str(text), int(alpha), int(k))
+    # print("encontrado")
+    # a = calculatingFCM(str(text), int(alpha), int(k))
 
-    #a = avancarUmaCasa("example.txt", 0, 3)
+    a = calculatingFCM("example.txt", 0.1, 3)
 
     generator(a, "wsl")
 
@@ -171,5 +197,5 @@ def main():
 
 if __name__ == "__main__":
     import os.path
-    chars = []
+    import math
     main()
