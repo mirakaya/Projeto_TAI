@@ -26,7 +26,7 @@ def calculatingFCM(text, alpha, k):
                         P[sequencia][list(n_appearances[sequencia].keys())[j]] = ((list(n_appearances[sequencia].values())[j] + alpha)/(sum(list(n_appearances[sequencia].values()))+ alpha * len(alphabet)))
                         
                         #Calculating Entropy of a sub-model(sequence)
-                        Hc_value -= (list(P[sequencia].values()))[j] * math.log2((list(P[sequencia].values()))[j])
+                        Hc_value -= (list(P[sequencia].values()))[j] * math.log2((list(P[sequencia].values()))[j])/contagem
 
                     #dictionary of Hc values for each sequence   
                     Hc[sequencia] = Hc_value
@@ -34,7 +34,7 @@ def calculatingFCM(text, alpha, k):
                 #Calculating the overall Entropy of the model
                 for i in range(0, len(list(P.keys()))):
                     sequencia = list(n_appearances.keys())[i]
-                    valorH += (Hc[sequencia] * (sum(list(n_appearances[sequencia].values()))+alpha * len(alphabet)))/contagem
+                    valorH += (Hc[sequencia] * (sum(list(n_appearances[sequencia].values()))+alpha * len(alphabet)))
 
                 print("Value of entropy ", round(valorH, 2), " bits/symbol")
                 break
