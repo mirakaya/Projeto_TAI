@@ -1,5 +1,8 @@
 from random import random
 import time
+import os.path
+import math
+from sys import argv
 
 def readFile(path):
     #reads a .txt file
@@ -261,7 +264,7 @@ def sorting (values): #returns the position chosen
 
 
 
-def main():
+def main(example):
     # while(True):
     #     text = input("Enter name of text file: ")
     #     alpha = input("Enter name of alpha: ")
@@ -281,18 +284,18 @@ def main():
     # print("encontrado")
     # a = calculatingFCM(str(text), int(alpha), int(k))
 
-    alpha = 0.1
-    k = 3
+    alpha = 1
+    k = 2
     begin = time.perf_counter()
-    a = calculatingFCM_v2("example.txt", alpha, k)
+    a = calculatingFCM_v2(example, alpha, k)
     end = time.perf_counter()
     print(end-begin)
 
-    #generator(a, "wsl")
+    generator(a, "wsl")
 
 
 
 if __name__ == "__main__":
-    import os.path
-    import math
-    main()
+    
+    example = argv[1]
+    main(example)
