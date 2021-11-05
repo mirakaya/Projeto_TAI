@@ -11,7 +11,7 @@ def calculatingFCM(text, alpha, k):
     valorH = 0
     contagem = 0
 
-    with open(text) as f:
+    with open(text, encoding="UTF-8") as f:
         while True:
             c = f.read(1)
             if not c:
