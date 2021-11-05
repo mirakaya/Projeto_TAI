@@ -1,4 +1,96 @@
 from random import random
+import time
+
+def readFile(path):
+    #reads a .txt file
+    file = open(path, "r")
+    fileContent = file.read()
+    
+    return fileContent
+
+def createAlphabet(fileContent):
+    #creates a set with all the possible characters
+    #each letter only appears once and it's unordere
+    alphabet = set()
+    for i in fileContent:
+       alphabet.add(i)
+
+    return alphabet
+    
+
+def initDictionary(cols, combs):
+    n_appearances = {}
+    for i in combs:
+        n_appearances[i] = {}
+        for j in cols:
+            n_appearances[i][j] = 0
+    return n_appearances
+
+def calcProb(n_appearances, c, e, a, cols):
+    prob = (n_appearances[c][e]+a) / (sum(n_appearances[c].values()) + (a*len(cols)))
+    return prob
+
+def calcEntropy(n_appearances, a, cols):
+    H_dict = {}
+    Probs = {}
+    for c in n_appearances.keys():
+        Hc = 0
+        Probs[c] = {}        
+        for s in n_appearances[c].keys():
+            prob = calcProb(n_appearances, c, s, a, cols)
+            Probs[c][s] = prob
+
+            Hc += -prob*math.log2(prob)
+            
+        H_dict[c] = round(Hc, 2)
+
+    return H_dict, Probs
+
+def calculatingFCM_v2(text, a, k):
+    fileContent = readFile(text)
+    
+    #Example in moodle (55 symbols) -- k=2, a=1--> E=2.54  |   k=3, a=0.1--> E=1.97  
+
+    cols = list(createAlphabet(fileContent))
+
+    n_appearances = {}
+    #Make table(Dictionary)
+    for i in range(k, len(fileContent[k:])+1):
+        c = fileContent[i-k:i]
+        e = fileContent[i]
+
+        #Update table
+        if e.isascii():
+            if c not in n_appearances:
+                n_appearances[c] = {}
+            
+            if e not in n_appearances[c]:
+                n_appearances[c][e] = 1
+
+            else:
+                n_appearances[c][e] += 1
+
+
+    #Entropy of each context
+    H_dict, Probs = calcEntropy(n_appearances, a, cols)          #key - context; value - H
+
+    #AVG Entropy
+    entropy_sum = 0
+
+    total_sum = sum(sum(i.values()) for i in n_appearances.values())
+    
+    for c in H_dict:
+        Pc = sum(n_appearances[c].values()) / total_sum
+        entropy_sum += H_dict[c] * Pc
+
+    print("Value of entropy ", round(entropy_sum, 2), " bits/symbol")
+    return Probs
+
+
+
+#----------------------------------------------------------------------------------------------------------
+
+
 
 def calculatingFCM(text, alpha, k):
 
@@ -189,9 +281,14 @@ def main():
     # print("encontrado")
     # a = calculatingFCM(str(text), int(alpha), int(k))
 
-    a = calculatingFCM("example.txt", 0.1, 3)
+    alpha = 0.1
+    k = 3
+    begin = time.perf_counter()
+    a = calculatingFCM_v2("example.txt", alpha, k)
+    end = time.perf_counter()
+    print(end-begin)
 
-    generator(a, "wsl")
+    #generator(a, "wsl")
 
 
 
