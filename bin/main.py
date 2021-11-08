@@ -10,14 +10,17 @@ def readFile(path):
     
     return fileContent
 
-def createAlphabet(fileContent):
+def createAlphabet(fileContent, k):
     #creates a set with all the possible characters
     #each letter only appears once and it's unordere
+    prio=""
     alphabet = set()
     for i in fileContent:
-       alphabet.add(i)
+        alphabet.add(i)
+        if len(prio) < k:
+            prio += i
 
-    return alphabet
+    return alphabet, prio
     
 def initDictionary(cols, combs):
     n_appearances = {}
@@ -49,7 +52,7 @@ def calcEntropy(n_appearances, a, cols):
 
 def calculatingFCM(text, a, k):
     fileContent = readFile(text)
-    cols = list(createAlphabet(fileContent))
+    cols, prio = list(createAlphabet(fileContent, k))
 
     n_appearances = {}
     #Make table(Dictionary)
@@ -78,7 +81,7 @@ def calculatingFCM(text, a, k):
         entropy_sum += H_dict[c] * Pc
 
     print("Value of entropy ", round(entropy_sum, 2), " bits/symbol")
-    return Probs
+    return Probs, prio
 
 
 def generator(dictionary, prior, lenText):
@@ -168,12 +171,12 @@ def main(example):
     alpha = 1
     k = 2
     begin = time.perf_counter()
-    a = calculatingFCM(example, alpha, k)
+    a, prio = calculatingFCM(example, alpha, k)
     end = time.perf_counter()
     print(end-begin)
 
     # Generator
-    generator(a, "wl", 10000)
+    generator(a, prio, 10000)
 
 
 if __name__ == "__main__":
