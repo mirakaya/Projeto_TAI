@@ -81,12 +81,12 @@ def calculatingFCM(text, a, k):
     return Probs
 
 
-def generator(entropy, prior):
+def generator(dictionary, prior, lenText):
     # checks if prior is valid
 
-    aux = list(entropy.keys())
+    aux = list(dictionary.keys())
 
-    if prior in entropy:
+    if prior in dictionary:
         if len(aux[0]) == len(prior):
             print("VALID")
         else:
@@ -99,7 +99,7 @@ def generator(entropy, prior):
 
     #for the moment I'll consider a 10000 char generation
 
-    generated_text = [None] * 10000
+    generated_text = [None] * lenText
     index = 0
 
     for i in range(len(generated_text)):
@@ -109,10 +109,10 @@ def generator(entropy, prior):
             aux = generated_text[i-len(prior): i] #last k positions
 
             aux_str = listToString(aux)
-            if entropy.get(aux_str):
+            if dictionary.get(aux_str):
 
-                keys_list = list(entropy.get(aux_str).keys())
-                values_list = list(entropy.get(aux_str).values())
+                keys_list = list(dictionary.get(aux_str).keys())
+                values_list = list(dictionary.get(aux_str).values())
 
                 position = sorting(values_list)
 
@@ -173,10 +173,13 @@ def main(example):
     print(end-begin)
 
     # Generator
-    generator(a, "wl")
+    generator(a, "wl", 10000)
 
 
 if __name__ == "__main__":
     
     example = argv[1]
     main(example)
+
+
+
