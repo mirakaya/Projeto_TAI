@@ -13,14 +13,17 @@ def readFile(path):
     return fileContent
 
 
-def createAlphabet(fileContent):
+def createAlphabet(fileContent, k):
     # creates a set with all the possible characters
     # each letter only appears once and it's unordere
+    prio=""
     alphabet = set()
     for i in fileContent:
         alphabet.add(i)
+        if len(prio) < k:
+            prio += i
 
-    return alphabet
+    return alphabet, prio
 
 
 def initDictionary(cols, combs):
@@ -59,7 +62,7 @@ def calculatingFCM_v2(text, a, k):
 
     # Example in moodle (55 symbols) -- k=2, a=1--> E=2.54  |   k=3, a=0.1--> E=1.97
 
-    cols = list(createAlphabet(fileContent))
+    cols, prio = list(createAlphabet(fileContent, k))
 
     n_appearances = {}
     # Make table(Dictionary)
@@ -91,7 +94,7 @@ def calculatingFCM_v2(text, a, k):
         entropy_sum += H_dict[c] * Pc
 
     print("Value of entropy ", round(entropy_sum, 2), " bits/symbol")
-    return Probs
+    return Probs, prio
 
 
 # ----------------------------------------------------------------------------------------------------------
@@ -280,11 +283,11 @@ def main(example):
     alpha = 1
     k = 2
     begin = time.perf_counter()
-    a = calculatingFCM_v2(example, alpha, k)
+    a, prio = calculatingFCM_v2(example, alpha, k)
     end = time.perf_counter()
     print(end - begin)
 
-    ans = generator(a, "wsl", 10000)
+    ans = generator(a, prio, 10000)
     print(ans)
 
 
