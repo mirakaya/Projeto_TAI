@@ -1,143 +1,182 @@
-import time
 from random import random
-from builtins import print
-
-defaultPath = "example.txt"
+import time
+import math
+from sys import argv
 
 def readFile(path):
     #reads a .txt file
     file = open(path, "r")
     fileContent = file.read()
-
-    createAlphabet(fileContent)
-    write_dictionary(fileContent, 3)
-
+    
+    return fileContent
 
 def createAlphabet(fileContent):
-   #creates a set with all the possible characters
-   #each letter only appears once and it's unordered
-
-   alphabet = set()
-
-   for i in fileContent:
+    #creates a set with all the possible characters
+    #each letter only appears once and it's unordere
+    alphabet = set()
+    for i in fileContent:
        alphabet.add(i)
 
-   print(alphabet)
-   print(len(alphabet))
+    return alphabet
+    
+def initDictionary(cols, combs):
+    n_appearances = {}
+    for i in combs:
+        n_appearances[i] = {}
+        for j in cols:
+            n_appearances[i][j] = 0
+    return n_appearances
 
-   checkStartPoint("abc[", alphabet)
+def calcProb(n_appearances, c, e, a, cols):
+    prob = (n_appearances[c][e]+a) / (sum(n_appearances[c].values()) + (a*len(cols)))
+    return prob
 
+def calcEntropy(n_appearances, a, cols):
+    H_dict = {}
+    Probs = {}
+    for c in n_appearances.keys():
+        Hc = 0
+        Probs[c] = {}        
+        for s in n_appearances[c].keys():
+            prob = calcProb(n_appearances, c, s, a, cols)
+            Probs[c][s] = prob
 
-def checkStartPoint(begin, alphabet): #change to correct names, maybe alphabet is not an arg
+            Hc += -prob*math.log2(prob)
+            
+        H_dict[c] = round(Hc, 2)
 
-    k=4 #change this, we should probably be able to check k from the table
+    return H_dict, Probs
 
-    if len(begin) != k:
-        print("Error - the start point does not have the same length as k")
+def calculatingFCM(text, a, k):
+    fileContent = readFile(text)
+    cols = list(createAlphabet(fileContent))
 
-    for i in begin:
+    n_appearances = {}
+    #Make table(Dictionary)
+    for i in range(k, len(fileContent[k:])+1):
+        c = fileContent[i-k:i]
+        e = fileContent[i]
 
-        if i in alphabet:
-            print("yes -  " + i)
+        #Update table
+        if c not in n_appearances:
+            n_appearances[c] = {}
+            
+        if e not in n_appearances[c]:
+            n_appearances[c][e] = 1
 
         else:
-            print("Error - at least one of the characters is not on the alphabet of the text - " + i )
+            n_appearances[c][e] += 1
+
+    #Entropy of each context
+    H_dict, Probs = calcEntropy(n_appearances, a, cols)          #key - context; value - H
+
+    #AVG Entropy
+    entropy_sum = 0
+    total_sum = sum(sum(i.values()) for i in n_appearances.values())
+    for c in H_dict:
+        Pc = sum(n_appearances[c].values()) / total_sum
+        entropy_sum += H_dict[c] * Pc
+
+    print("Value of entropy ", round(entropy_sum, 2), " bits/symbol")
+    return Probs
 
 
-dictionary = {}
+def generator(entropy, prior):
+    # checks if prior is valid
 
-def write_dictionary(text, k):
+    aux = list(entropy.keys())
 
-    count = 0 #used to iterate the text and tell which characters belong to the k interval
-    listCharacters = list(text)
-
-    for i in text:
-
-        if count <= len(text)-k:
-
-            nextPosition = count + k - 1 #position after the k characters
-
-            temp = listCharacters[count - 1:nextPosition]  # characters of k
-
-            separator = ''
-            auxKey = separator.join(temp) #turns list into a string, k interval
-
-            if len(auxKey) == k: #makes sure the dictionary only has keys of k length
-
-                nextCharacter = listCharacters[nextPosition]#character after k
-
-                if auxKey in dictionary: #known key, adds one to the frequency of the string
-
-                    newList = []
-
-                    for p in dictionary[auxKey]: #creates a list with all of the characters after the key
-
-                        newList += p[0]
+    if prior in entropy:
+        if len(aux[0]) == len(prior):
+            print("VALID")
+        else:
+            print("INVALID")
+            return
+    else:
+        print("INVALID")
+        return
 
 
-                    for j in dictionary[auxKey]:
+    #for the moment I'll consider a 10000 char generation
 
-                        if nextCharacter in newList: #if the character is known
+    generated_text = [None] * 10000
+    index = 0
 
-                            positionCharacter = 0
+    for i in range(len(generated_text)):
 
-                            for h in newList: #seek position of character
+        if i >= len(prior): # Generates text
+            
+            aux = generated_text[i-len(prior): i] #last k positions
 
-                                if newList[positionCharacter] == nextCharacter:
-                                    break
-                                else:
-                                    positionCharacter += 1
+            aux_str = listToString(aux)
+            if entropy.get(aux_str):
 
-                            freqNextCharacter = dictionary[auxKey][positionCharacter][1]
-                            newValue = [nextCharacter, freqNextCharacter + 1]
-                            dictionary[auxKey][positionCharacter] = newValue #finds out the frequency of the character, adds 1 and substitute on the right position
+                keys_list = list(entropy.get(aux_str).keys())
+                values_list = list(entropy.get(aux_str).values())
 
-                            break
+                position = sorting(values_list)
 
-                        else: #first time the character has appeared after the key
-                            dictionary[auxKey] += [[nextCharacter, 1]]
-                            break
+                answerKey = keys_list[position]
 
+                generated_text[i] = answerKey
 
-                else: #new key
+                #return next_chars_list[position]
+                index += 1
 
-                    dictionary[auxKey] = [[nextCharacter, 1]]
+        else: #fills list with prior
+            generated_text[i] = prior[i]
 
+            index += 1
 
-            #print(dictionary)
+    result = listToString(generated_text)
 
-            count += 1
-
-    printDictionary(dictionary)
-
-
-def printDictionary(dictionary):
-
-    print(dictionary)
+    with open('file.txt', 'w') as data: #writes to file.txt the dictionary #12
+        data.write(result)
 
 
-def suitc() -> str: #example for the generator
+    return result
+
+
+
+def listToString (l):
+    aux = ""
+    for a in l:  # last k positions in a string
+        if a:
+            aux += a
+
+    return aux
+
+
+def sorting (values): #returns the position chosen
     random_variable_instance = random()
-    if 0 < random_variable_instance and 0.25 >= random_variable_instance:
-        return "Diamonds"
-    elif 0.25 < random_variable_instance and 0.5 >= random_variable_instance:
-        return "Clubs"
-    elif 0.5 < random_variable_instance and 0.75 >= random_variable_instance:
-        return "Hearts"
-    elif 0.75 < random_variable_instance and 1 >= random_variable_instance:
-        return "Spades"
+    entropySum = values[0]
+
+    for i in range(len(values)):
+        if entropySum < random_variable_instance:
+            if i != 0:
+                entropySum = entropySum + values[i]
+        else:
+            return i
+
+    return len(values)-1
 
 
 
+def main(example):
 
-
-#main
-if __name__ == '__main__':
-
+    # FCM
+    alpha = 1
+    k = 2
     begin = time.perf_counter()
-    readFile(defaultPath)
-    #write_dictionary("aaabaaacaaabaaacaaazaaazaaazaaaxaaavacab", 3) # b2, c2, z3, x1, v1
-
+    a = calculatingFCM(example, alpha, k)
     end = time.perf_counter()
+    print(end-begin)
 
-    print("The time was -- " + str (end - begin))
+    # Generator
+    generator(a, "wl")
+
+
+if __name__ == "__main__":
+    
+    example = argv[1]
+    main(example)
